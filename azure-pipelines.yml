@@ -1,0 +1,57 @@
+trigger:
+- main  # Or your branch of choice
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  terraform_version: '1.4.6'  # Specify the Terraform version you need
+  cx_client_id: $(CX_CLIENT_ID)  # Checkmarx Client ID (stored as secret in Azure DevOps)
+  cx_client_secret: $(CX_CLIENT_SECRET)  # Checkmarx Client Secret (stored as secret in Azure DevOps)
+  cx_tenant: $(CX_TENANT)  # Your Checkmarx Tenant Name (stored as secret in Azure DevOps)
+  project_name: 'MyTerraformProject'  # Your project name for Checkmarx
+  scan_type: 'SAST'  # IaC Scan Type (can be 'SAST' or others depending on the type of scan you need)
+  scan_directory: '.'  # Directory to scan (typically current directory)
+
+jobs:
+- job: CxOneIaCScan
+  displayName: 'CxOne IaC Scan Job'
+  steps:
+
+    - task: Checkout@1
+      displayName: 'Checkout Code'
+      inputs:
+        repository: self
+        clean: true
+
+    - task: UsePythonVersion@0
+      displayName: 'Setup Python for Checkmarx CLI'
+      inputs:
+        versionSpec: '3.x'
+        addToPath: true
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install checkmarx-cli  # Install Checkmarx CLI tool
+      displayName: 'Install Checkmarx CLI'
+
+    - script: |
+        # Authenticate with Checkmarx CLI using environment variables
+        export CX_CLIENT_ID=${{ TEST_ST }}
+        export CX_CLIENT_SECRET=${{ DSotaZNxQYKSDSeDSjvGjNh0DFncxRAC }}
+        export CX_TENANT=${{ ast_abdul_ansari}}
+
+        # Run the CxOne IaC scan using Checkmarx CLI
+        cx scan create --project-name "${{ terrform_cxone }}" --scan-type "${{ variables.scan_type }}" --directory "${{ variables.scan_directory }}" --branch main
+      displayName: 'Run CxOne IaC Scan'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish CxOne Scan Results'
+      inputs:
+        PathtoPublish: $(Build.SourcesDirectory)
+        ArtifactName: 'cxone-scan-results'
+        publishLocation: 'Container'
+
+    - script: |
+        echo "CxOne IaC scan completed successfully!"
+      displayName: 'Finish CxOne Scan'
