@@ -24,16 +24,9 @@ jobs:
         repository: self
         clean: true
 
-    - task: UsePythonVersion@0
-      displayName: 'Setup Python for Checkmarx CLI'
-      inputs:
-        versionSpec: '3.x'
-        addToPath: true
+    
 
-    - script: |
-        python -m pip install --upgrade pip
-        pip install checkmarx-cli  # Install Checkmarx CLI tool
-      displayName: 'Install Checkmarx CLI'
+    
 
     - script: |
         # Authenticate with Checkmarx CLI using environment variables
