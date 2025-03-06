@@ -2,15 +2,15 @@ trigger:
 - main  # Or your branch of choice
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'default'
 
 variables:
   terraform_version: '1.4.6'  # Specify the Terraform version you need
-  cx_client_id: $(CX_CLIENT_ID)  # Checkmarx Client ID (stored as secret in Azure DevOps)
-  cx_client_secret: $(CX_CLIENT_SECRET)  # Checkmarx Client Secret (stored as secret in Azure DevOps)
-  cx_tenant: $(CX_TENANT)  # Your Checkmarx Tenant Name (stored as secret in Azure DevOps)
+  cx_client_id: $(TEST_ST)  # Checkmarx Client ID (stored as secret in Azure DevOps)
+  cx_client_secret: $(DSotaZNxQYKSDSeDSjvGjNh0DFncxRACT)  # Checkmarx Client Secret (stored as secret in Azure DevOps)
+  cx_tenant: $(ast_abdul_ansari)  # Your Checkmarx Tenant Name (stored as secret in Azure DevOps)
   project_name: 'MyTerraformProject'  # Your project name for Checkmarx
-  scan_type: 'SAST'  # IaC Scan Type (can be 'SAST' or others depending on the type of scan you need)
+  scan_type: 'IaC'  # IaC Scan Type (can be 'SAST' or others depending on the type of scan you need)
   scan_directory: '.'  # Directory to scan (typically current directory)
 
 jobs:
@@ -37,12 +37,12 @@ jobs:
 
     - script: |
         # Authenticate with Checkmarx CLI using environment variables
-        export CX_CLIENT_ID=${{ TEST_ST }}
-        export CX_CLIENT_SECRET=${{ DSotaZNxQYKSDSeDSjvGjNh0DFncxRAC }}
-        export CX_TENANT=${{ ast_abdul_ansari}}
+        export CX_CLIENT_ID=${{ variables.cx_client_id }}
+        export CX_CLIENT_SECRET=${{ variables.cx_client_secret }}
+        export CX_TENANT=${{ variables.cx_tenant }}
 
         # Run the CxOne IaC scan using Checkmarx CLI
-        cx scan create --project-name "${{ terrform_cxone }}" --scan-type "${{ variables.scan_type }}" --directory "${{ variables.scan_directory }}" --branch main
+        cx scan create --project-name "${{ variables.project_name }}" --scan-type "${{ variables.scan_type }}" --directory "${{ variables.scan_directory }}" --branch main
       displayName: 'Run CxOne IaC Scan'
 
     - task: PublishBuildArtifacts@1
